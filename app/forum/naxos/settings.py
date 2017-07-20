@@ -20,8 +20,18 @@ STATICFILES_DIRS = (root("static"),)
 MEDIA_ROOT = root("media")
 
 if os.environ.get("LOCAL_ENV"):
-    STATIC_URL = "/static/"
-    MEDIA_URL = "/media/"
+    # STATIC_URL = "/static/"
+    # MEDIA_URL = "/media/"
+    DEFAULT_FILE_STORAGE = "minio_storage.storage.MinioMediaStorage"
+    STATICFILES_STORAGE = "minio_storage.storage.MinioStaticStorage"
+    MINIO_STORAGE_ACCESS_KEY = os.environ.get('MINIO_ACCESS_KEY')
+    MINIO_STORAGE_SECRET_KEY = os.environ.get('MINIO_SECRET_KEY')
+    MINIO_STORAGE_ENDPOINT = "minio:9000"
+    MINIO_STORAGE_USE_HTTPS = False
+    MINIO_STORAGE_MEDIA_BUCKET_NAME = "local-media"
+    MINIO_STORAGE_AUTO_CREATE_MEDIA_BUCKET = True
+    MINIO_STORAGE_STATIC_BUCKET_NAME = "local-static"
+    MINIO_STORAGE_AUTO_CREATE_STATIC_BUCKET = True
 else:
     AWS_STORAGE_BUCKET_NAME = os.environ.get("AWS_STORAGE_BUCKET_NAME")
     AWS_ACCESS_KEY_ID = os.environ.get("AWS_ACCESS_KEY_ID")
@@ -64,7 +74,7 @@ INSTALLED_APPS = (
     "django.contrib.humanize",
 
     # Third-party Apps
-    "storages",
+    "minio_storage" if os.environ.get("LOCAL_ENV") else "storages",
     "crispy_forms",
 
     # Project Apps

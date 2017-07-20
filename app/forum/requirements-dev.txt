@@ -2,3 +2,4 @@
 
 django-debug-toolbar
 # hacking
+django-minio-storage
