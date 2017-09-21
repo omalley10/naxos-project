@@ -4,14 +4,14 @@
   roles:
     - common
     - docker
-    - docker_network
+  #   - docker_network
     - forum
     - nginx
-  tasks:
-    # Reclaim hard drive space
-    - name: clean outdated docker images & stopped containers
-      shell: >
-        docker system prune --force &&
-        docker rmi $(docker images --quiet --filter dangling=true)
-      failed_when: False
+  # tasks:
+  #   # Reclaim hard drive space
+  #   - name: clean outdated docker images & stopped containers
+  #     shell: >
+  #       docker system prune --force &&
+  #       docker rmi $(docker images --quiet --filter dangling=true)
+  #     failed_when: False
 ...

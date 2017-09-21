@@ -1,5 +1,5 @@
 ---
-dependencies:
-  - db
-  - memcached
+# dependencies:
+#   - db
+#   - memcached
 ...

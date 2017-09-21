@@ -6,17 +6,17 @@
     state: installed
 
 # ACME challenges
-- name: create acme challenge path
-  file:
-    path: "{{acme_path}}"
-    state: directory
-    mode: 0755
-- name: populate acme challenges
-  copy:
-    content: ""
-    dest: "{{acme_path}}/{{item}}"
-    mode: 0444
-  with_items: "{{acme_challenges}}"
+# - name: create acme challenge path
+#   file:
+#     path: "{{acme_path}}"
+#     state: directory
+#     mode: 0755
+# - name: populate acme challenges
+#   copy:
+#     content: ""
+#     dest: "{{acme_path}}/{{item}}"
+#     mode: 0444
+#   with_items: "{{acme_challenges}}"
 
 # Nginx config and certificates
 - name: create host nginx folder
@@ -43,42 +43,43 @@
     src: nginx.conf
     dest: "{{nginx_folder}}/"
 
-# Nginx
-- name: stop nginx container
-  docker_container:
-    name: nginx
-    state: absent
-  ignore_errors: yes
-  register: container_stop
-  until: not container_stop.get("failed")
-  retries: 5
-  delay: 10
-- name: start nginx container
-  docker_container:
-    name: nginx
-    image: nginx:{{nginx_version}}
-    pull: yes
-    state: started
-    networks:
-      - name: "{{project_name}}"
-        aliases:
-          - nginx
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - "{{nginx_folder}}/nginx.conf:/etc/nginx/nginx.conf:ro"
-      - "{{nginx_folder}}/dhparam.pem:/etc/nginx/ssl/dhparam.pem:ro"
-      - "/etc/letsencrypt:/etc/letsencrypt:ro"
-      - "/usr/share/nginx/html:/usr/share/nginx/html:ro"  # ACME challenge
+# # Nginx
+# - name: stop nginx container
+#   docker_container:
+#     name: nginx
+#     state: absent
+#   ignore_errors: yes
+#   register: container_stop
+#   until: not container_stop.get("failed")
+#   retries: 5
+#   delay: 10
+# - name: start nginx container
+#   docker_container:
+#     name: nginx
+#     image: nginx:{{nginx_version}}
+#     pull: yes
+#     state: started
+#     networks:
+#       - name: "{{project_name}}"
+#         aliases:
+#           - nginx
+#     ports:
+#       - "80:80"
+#       - "443:443"
+#     volumes:
+#       - "{{nginx_folder}}/nginx.conf:/etc/nginx/nginx.conf:ro"
+#       - "{{nginx_folder}}/dhparam.pem:/etc/nginx/ssl/dhparam.pem:ro"
+#       - "/etc/letsencrypt:/etc/letsencrypt:ro"
+#       - "/usr/share/nginx/html:/usr/share/nginx/html:ro"  # ACME challenge
 
-# Renew cert
-- name: renew certificate
-  command: certbot renew
-  when: installed_certicates.changed
-  register: renewed_cert
-- name: restart nginx container
-  docker_container:
-    name: nginx
-    restart: yes
-  when: renewed_cert.changed
+# # Renew cert
+# - name: renew certificate
+#   command: certbot renew
+#   when: installed_certicates.changed
+#   register: renewed_cert
+# - name: restart nginx container
+#   docker_container:
+#     name: nginx
+#     restart: yes
+#   when: renewed_cert.changed
+# certbot certonly --standalone -n --preferred-challenges tls-sni -d staging.geekattitude.org --agree-tos --email maurin.th@protonmail.ch

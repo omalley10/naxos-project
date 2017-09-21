@@ -2,6 +2,7 @@
 - name: load vaulted variables
   include_vars: vars/vault.yml
 
+# Snippets
 - name: create host app folders
   file:
     state: directory
@@ -9,7 +10,6 @@
   with_items:
     - html
     - secrets
-
 - name: copy ad html snippets
   copy:
     src: "{{item}}"
@@ -18,65 +18,13 @@
     - amazon.html
     - paypal_gift.html
 
-# Forum server
-- name: stop forum container
-  docker_container:
-    name: forum
-    state: absent
-  ignore_errors: yes
-  register: container_stop
-  until: not container_stop.get("failed")
-  retries: 5
-  delay: 10
-- name: launch forum container
-  docker_container:
-    name: forum
-    image: "{{forum_image}}:{{version}}"
-    pull: yes
-    state: started
-    networks:
-      - name: "{{project_name}}"
-        aliases:
-          - forum
-    env:
-      HOSTNAME: "{{inventory_hostname}}"
-      DB_NAME: "{{db_name}}"
-      DB_USER: "{{db_user}}"
-      DB_PASSWORD: "{{db_password}}"
-      AWS_STORAGE_BUCKET_NAME: "{{aws_storage_bucket_name}}"
-      AWS_ACCESS_KEY_ID: "{{aws_access_key_id}}"
-      AWS_SECRET_ACCESS_KEY: "{{aws_secret_access_key}}"
-      EMAIL_HOST: "{{email_host}}"
-      EMAIL_PORT: "{{email_port}}"
-      SERVER_EMAIL: "{{server_email}}"  # email address to use
-      EMAIL_HOST_PASSWORD: "{{email_host_password}}"
-      EMAIL_SERVER_PREFIX: "{{email_server_prefix}}"
-      ADMIN_NAME: "{{admin_name}}"
-      ADMIN_EMAIL: "{{admin_email}}"
-    volumes:
-      - "{{ansible_env.HOME}}/secrets:/app/secrets/"
-      - "{{ansible_env.HOME}}/html:/app/templates/ads/:ro"
-
-# Websocket server
-- name: stop websocket container
-  docker_container:
-    name: websocket
-    state: absent
-  ignore_errors: yes
-  register: container_stop
-  until: not container_stop.get("failed")
-  retries: 5
-  delay: 10
-- name: launch websocket container
-  docker_container:
-    name: websocket
-    image: "{{websocket_image}}:{{version}}"
-    pull: yes
-    state: started
-    networks:
-      - name: "{{project_name}}"
-        aliases:
-          - websocket
+# Swarm
+- name: install docker-compose stack
+  template:
+    src: docker-compose.yml
+    dest: /tmp
+- name: launch swarm stack
+  command: docker stack deploy --compose-file /tmp/docker-compose.yml {{project_name}}
 
 # Purge expired sessions from db
 - name: add clearsessions cron

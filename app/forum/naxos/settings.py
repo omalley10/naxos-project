@@ -133,7 +133,7 @@ DATABASES = {
         "NAME": os.environ.get("DB_NAME", "postgres"),
         "USER": os.environ.get("DB_USER", "postgres"),
         "PASSWORD": os.environ.get("DB_PASSWORD", "crimson"),
-        "HOST": os.environ.get("DB_HOST", "db"),
+        "HOST": os.environ.get("DB_HOST", "naxos_db"),
         "PORT": os.environ.get("DB_PORT", 5432),
     }
 }
@@ -144,7 +144,7 @@ CONN_MAX_AGE = None
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.memcached.PyLibMCCache",
-        "LOCATION": os.environ.get("CACHE_LOCATION", "memcached"),
+        "LOCATION": os.environ.get("CACHE_LOCATION", "naxos_cache"),
     }
 }
 
